@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚡ CYBER CDR FORENSICS | Neural Anomaly Core</title>
+  <!-- Fonts & Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js"></script>
+  <style>
+    /* ---------- CYBERPUNK CORE ---------- */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: radial-gradient(circle at 10% 20%, #03050B, #000000);
+      font-family: 'Space Grotesk', sans-serif;
+      color: #E0F2FE;
+      scroll-behavior: smooth;
+    }
+    /* glitch scan effect */
+    .cyber-scan {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: repeating-linear-gradient(0deg, rgba(0,255,255,0.02) 0px, rgba(0,255,255,0.02) 2px, transparent 2px, transparent 6px);
+      z-index: 9999;
+    }
+    .neon-glow {
+      box-shadow: 0 0 8px rgba(0, 255, 255, 0.3), 0 0 20px rgba(0, 255, 255, 0.1);
+      border: 1px solid rgba(0, 255, 255, 0.5);
+    }
+    .glass-cyber {
+      background: rgba(8, 12, 25, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 255, 255, 0.25);
+      border-radius: 20px;
+      transition: all 0.2s ease;
+    }
+    .glass-cyber:hover {
+      border-color: #0ff;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+    }
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 18px;
+      margin: 6px 12px;
+      border-radius: 16px;
+      font-weight: 500;
+      transition: all 0.2s;
+      cursor: pointer;
+      background: rgba(0, 255, 255, 0.02);
+      border-left: 2px solid transparent;
+    }
+    .sidebar-item.active {
+      background: linear-gradient(95deg, rgba(0, 255, 255, 0.15), rgba(0, 150, 255, 0.05));
+      border-left: 2px solid #0ff;
+      color: #0ff;
+      text-shadow: 0 0 3px #0ff;
+    }
+    .sidebar-item:hover:not(.active) {
+      background: rgba(0, 255, 255, 0.08);
+      border-left: 2px solid #0ff8;
+    }
+    .data-grid {
+      background: #05070F;
+      border: 1px solid #0ff22a;
+      border-radius: 20px;
+      overflow-x: auto;
+      backdrop-filter: blur(4px);
+    }
+    .data-grid th {
+      background: #010208;
+      color: #0ff;
+      font-weight: 600;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 14px 16px;
+      border-bottom: 1px solid #0ff33a;
+    }
+    .data-grid td {
+      padding: 10px 16px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+      border-bottom: 1px solid #11223a;
+      color: #B4E6FF;
+    }
+    .btn-primary {
+      background: linear-gradient(85deg, #0ff, #0a6);
+      border: none;
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: #000;
+      cursor: pointer;
+      transition: 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .btn-primary:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 12px #0ff;
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid #0ff;
+      color: #0ff;
+      padding: 7px 18px;
+      border-radius: 40px;
+      font-weight: 500;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+    .btn-secondary:hover {
+      background: #0ff1a;
+      box-shadow: 0 0 6px #0ff;
+    }
+    .input-field {
+      background: #010208;
+      border: 1px solid #0ff44a;
+      border-radius: 16px;
+      padding: 10px 14px;
+      color: #0ff;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+      width: 100%;
+      outline: none;
+    }
+    .input-field:focus {
+      border-color: #0ff;
+      box-shadow: 0 0 10px #0ff3;
+    }
+    .badge {
+      background: #0ff22a;
+      color: #000;
+      border-radius: 40px;
+      padding: 4px 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      display: inline-block;
+      text-transform: uppercase;
+    }
+    .risk-high { background: #ff0055; color: #000; }
+    .risk-med { background: #ffaa00; color: #000; }
+    .risk-low { background: #0ff; color: #000; }
+    .spinner {
+      width: 45px;
+      height: 45px;
+      border: 3px solid #0ff33a;
+      border-top-color: #0ff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #000; }
+    ::-webkit-scrollbar-thumb { background: #0ff; border-radius: 10px; }
+    .neon-text {
+      text-shadow: 0 0 4px #0ff, 0 0 2px #0ff;
+    }
+  </style>
+</head>
+<body>
+<div class="cyber-scan"></div>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ---------- API HELPER ----------
+const api = {
+  get: (url) => fetch(url).then(res => { if(!res.ok) throw new Error(res.statusText); return res.json(); }),
+  post: (url, data) => fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) }).then(res => { if(!res.ok) return res.json().then(e=>{throw new Error(e.detail||'Error')}); return res.json(); }),
+  upload: (url, fd) => fetch(url, { method:'POST', body: fd }).then(res => { if(!res.ok) return res.json().then(e=>{throw new Error(e.detail)}); return res.json(); }),
+  del: (url) => fetch(url, { method:'DELETE' }).then(res => { if(!res.ok) throw new Error(res.statusText); return res.json(); })
+};
+
+function useRoute() {
+  const [hash, setHash] = useState(window.location.hash || '#/');
+  useEffect(() => {
+    const handler = () => setHash(window.location.hash || '#/');
+    window.addEventListener('hashchange', handler);
+    return () => window.removeEventListener('hashchange', handler);
+  }, []);
+  const navigate = (path) => { window.location.hash = path; };
+  return { hash, navigate };
+}
+
+// ---------- TOP NEON BAR ----------
+function TopNav({ navigate }) {
+  return (
+    <div className="sticky top-0 z-50 bg-black/80 backdrop-blur-2xl border-b border-[#0ff] shadow-[0_0_8px_#0ff2]">
+      <div className="max-w-7xl mx-auto px-5 flex items-center justify-between h-16">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('#/')}>
+          <div className="w-9 h-9 rounded-full bg-gradient-to-r from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+            <span className="text-black font-black text-lg">⚡</span>
+          </div>
+          <span className="font-bold text-xl tracking-widest neon-text">CDR::NEUROFORENSIC</span>
+        </div>
+        <div className="flex gap-4 items-center">
+          <div className="badge flex items-center gap-1 bg-cyan-900/50 text-cyan-300"><span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> CYBER ACTIVE</div>
+          <span className="text-[10px] font-mono text-cyan-400/70">{new Date().toISOString().slice(0,19).replace('T',' ')} UTC</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------- HOME PAGE (CYBER CARDS) ----------
+function HomePage({ navigate }) {
+  const [cases, setCases] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showNew, setShowNew] = useState(false);
+  const [form, setForm] = useState({ case_number: '', title: '', subscriber_number: '' });
+  const [submitting, setSubmitting] = useState(false);
+
+  const loadCases = useCallback(async () => {
+    try { const data = await api.get('/api/cases'); setCases(data); } catch(e) {} finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { loadCases(); }, []);
+
+  const createCase = async () => {
+    if(!form.case_number || !form.title || !form.subscriber_number) return;
+    setSubmitting(true);
+    try { const newCase = await api.post('/api/cases', form); navigate(`#/case/${newCase.id}`); } catch(e) { alert(e.message); } finally { setSubmitting(false); }
+  };
+
+  const deleteCase = async (id, e) => {
+    e.stopPropagation();
+    if(confirm('⚠️ Delete case — all CDR records lost permanently?')) {
+      try { await api.del(`/api/cases/${id}`); loadCases(); } catch(err) { alert('Delete failed'); }
+    }
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto px-5 py-12">
+      <div className="flex justify-between items-center mb-10">
+        <div><h1 className="text-5xl font-black tracking-tighter bg-gradient-to-r from-cyan-300 to-blue-500 bg-clip-text text-transparent">// INVESTIGATION_HUB</h1><p className="text-cyan-400/70 text-sm mt-2 font-mono">neural behavioral analysis | anomaly core v2.0</p></div>
+        <button className="btn-primary" onClick={() => setShowNew(!showNew)}>{showNew ? '✕ CANCEL' : '+ DEPLOY CASE'}</button>
+      </div>
+      {showNew && (
+        <div className="glass-cyber p-7 mb-10 rounded-2xl">
+          <h2 className="text-cyan-400 text-sm font-mono font-bold tracking-widest mb-4">[ NEW FORENSIC TARGET ]</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+            <input className="input-field" placeholder="Case ID (e.g., CYBER-001)" value={form.case_number} onChange={e=>setForm({...form, case_number: e.target.value})} />
+            <input className="input-field" placeholder="Case Title / Operation" value={form.title} onChange={e=>setForm({...form, title: e.target.value})} />
+            <input className="input-field" placeholder="Subscriber Number (target line)" value={form.subscriber_number} onChange={e=>setForm({...form, subscriber_number: e.target.value})} />
+          </div>
+          <button className="btn-primary" disabled={submitting} onClick={createCase}>{submitting ? 'BOOTING...' : 'INITIALIZE CASE'}</button>
+        </div>
+      )}
+      {loading ? <div className="flex justify-center py-20"><div className="spinner"/></div> :
+        cases.length === 0 ? <div className="text-center py-32 text-cyan-600/50 font-mono">⛔ NO ACTIVE CASES. UPLOAD NEW TARGET.</div> :
+        <div className="grid gap-5">
+          {cases.map(c => (
+            <div key={c.id} onClick={() => navigate(`#/case/${c.id}`)} className="glass-cyber p-5 cursor-pointer transition-all hover:scale-[1.01] flex flex-wrap justify-between items-center">
+              <div><div className="text-cyan-400 font-mono font-bold text-sm">🔗 {c.case_number}</div><div className="text-white text-xl font-semibold">{c.title}</div></div>
+              <div className="flex gap-6 items-center">
+                <button onClick={(e) => deleteCase(c.id, e)} className="text-red-400 hover:text-red-600 text-2xl transition">🗑️</button>
+                <span className="badge bg-cyan-900/80 text-cyan-300">{c.status}</span>
+                <span className="text-xs text-cyan-400/60">{c.created_at?.slice(0,10)}</span>
+                <span className="text-cyan-400 text-2xl animate-pulse">→</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      }
+    </div>
+  );
+}
+
+// ---------- UPLOAD MODULE (Neon) ----------
+function UploadPanel({ caseId, onUploadDone }) {
+  const [file, setFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState(null);
+  const handleUpload = async () => {
+    if(!file) return;
+    setUploading(true); setMessage(null);
+    const fd = new FormData(); fd.append('file', file);
+    try {
+      const res = await api.upload(`/api/cases/${caseId}/upload`, fd);
+      setMessage({ type: 'success', text: `✅ ${res.inserted} records ingested.` });
+      if(onUploadDone) onUploadDone();
+      setFile(null); document.getElementById('cdrFile').value = '';
+    } catch(e) { setMessage({ type: 'error', text: `❌ ${e.message}` }); } finally { setUploading(false); }
+  };
+  return (
+    <div className="glass-cyber p-5 rounded-2xl mb-8 flex flex-wrap gap-4 items-end">
+      <div className="flex-1"><label className="text-xs text-cyan-400 uppercase tracking-wider font-mono">📡 CDR STREAM (CSV)</label><input type="file" accept=".csv" onChange={e=>setFile(e.target.files[0])} className="hidden" id="cdrFile"/><label htmlFor="cdrFile" className="input-field cursor-pointer block mt-2">{file ? file.name : 'SELECT DATAFILE'}</label></div>
+      <button className="btn-primary" onClick={handleUpload} disabled={!file || uploading}>{uploading ? 'ANALYZING...' : 'UPLOAD & DECODE'}</button>
+      {message && <div className={`text-sm ${message.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>{message.text}</div>}
+    </div>
+  );
+}
+
+// ---------- CONTENT COMPONENTS (same logic, new cyber styling) ----------
+function RecordsTab({ caseId }) {
+  const [data, setData] = useState(null); const [page, setPage] = useState(1); const [loading, setLoading] = useState(false);
+  const load = useCallback(async (p) => { setLoading(true); try { setData(await api.get(`/api/cases/${caseId}/records?page=${p}&page_size=40`)); } catch(e){} finally { setLoading(false); } }, [caseId]);
+  useEffect(() => { load(page); }, [page, load]);
+  if(loading && !data) return <div className="flex justify-center py-12"><div className="spinner"/></div>;
+  if(!data?.records?.length) return <div className="text-center py-20 text-cyan-400/40">⛔ NO CDR RECORDS. UPLOAD FILE.</div>;
+  return (
+    <div><div className="flex justify-between mb-4 text-sm"><span className="text-cyan-400">📞 total {data.total} calls · page {data.page}/{data.pages}</span><div className="flex gap-2"><button className="btn-secondary text-xs" disabled={page<=1} onClick={()=>setPage(p=>p-1)}>‹ PREV</button><button className="btn-secondary text-xs" disabled={page>=data.pages} onClick={()=>setPage(p=>p+1)}>NEXT ›</button></div></div>
+    <div className="data-grid"><table className="w-full"><thead><tr><th>CALLED NUMBER</th><th>DATE/TIME UTC</th><th>DURATION (s)</th><th>TYPE</th></tr></thead><tbody>{data.records.map(r=>(<tr key={r.id}><td className="text-cyan-300 font-mono">{r.called_number}</td><td className="text-xs">{r.call_datetime?.replace('T',' ').slice(0,19)}</td><td>{r.duration_seconds}</td><td><span className="badge bg-cyan-800 text-cyan-200">{r.call_type}</span></td></tr>))}</tbody></table></div></div>
+  );
+}
+
+function FrequencyTab({ caseId }) {
+  const [data, setData] = useState(null); const [loading, setLoading] = useState(true);
+  useEffect(() => { api.get(`/api/cases/${caseId}/analysis/frequency`).then(setData).finally(()=>setLoading(false)); }, [caseId]);
+  if(loading) return <div className="flex justify-center py-12"><div className="spinner"/></div>;
+  if(!data?.length) return <div className="text-center py-20">NO DATA</div>;
+  return (<div className="data-grid"><table className="w-full"><thead><tr><th>#</th><th>CONTACT NUMBER</th><th>CALL COUNT</th></tr></thead><tbody>{data.map((d,i)=>(<tr key={i}><td className="text-gray-400">{i+1}</td><td className="text-cyan-300 font-mono">{d.called_number}</td><td><div className="flex gap-2 items-center"><div className="h-2 bg-cyan-400/60 rounded-full" style={{width:`${Math.min(100, d.call_count / data[0].call_count * 100)}%`, maxWidth:'120px'}}/><span className="font-bold text-cyan-400">{d.call_count}</span></div></td></tr>))}</tbody></table></div>);
+}
+
+function HourlyTab({ caseId }) {
+  const [data, setData] = useState(null); const chartRef = useRef(null); const instRef = useRef(null);
+  useEffect(() => { api.get(`/api/cases/${caseId}/analysis/hourly`).then(setData); }, [caseId]);
+  useEffect(() => {
+    if(!data || !chartRef.current) return; if(instRef.current) instRef.current.destroy();
+    instRef.current = new Chart(chartRef.current, { type: 'bar', data: { labels: data.map(d=>`${d.hour}:00`), datasets: [{ label: 'CALL VOLUME', data: data.map(d=>d.count), backgroundColor: '#0ff66a', borderColor: '#0ff', borderWidth: 1.5 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: '#1A2F3F' }, ticks: { color: '#8dd' } }, x: { ticks: { color: '#8dd' } } }, plugins: { legend: { labels: { color: '#0ff' } } } } });
+    return () => { if(instRef.current) instRef.current.destroy(); };
+  }, [data]);
+  const peak = data ? [...data].sort((a,b)=>b.count-a.count)[0] : null;
+  if(!data) return <div className="flex justify-center py-12"><div className="spinner"/></div>;
+  return (<div><div className="grid grid-cols-3 gap-4 mb-6"><div className="glass-cyber p-4 text-center"><div className="text-gray-400 text-xs">TOTAL CALLS</div><div className="text-3xl font-black text-white">{data.reduce((a,b)=>a+b.count,0)}</div></div><div className="glass-cyber p-4 text-center"><div className="text-gray-400 text-xs">PEAK HOUR</div><div className="text-3xl font-black text-cyan-400">{peak.hour}:00</div></div><div className="glass-cyber p-4 text-center"><div className="text-gray-400 text-xs">PEAK VOLUME</div><div className="text-3xl font-black text-white">{peak.count}</div></div></div><div className="h-64"><canvas ref={chartRef}/></div></div>);
+}
+
+function RelationshipTab({ caseId }) {
+  const [data, setData] = useState(null); const [loading, setLoading] = useState(true); const [view, setView] = useState('table'); const containerRef = useRef(null); const networkRef = useRef(null);
+  useEffect(() => { api.get(`/api/cases/${caseId}/relationship-mapping`).then(setData).finally(()=>setLoading(false)); }, [caseId]);
+  useEffect(() => {
+    if (!data || view !== 'graph' || !containerRef.current) return;
+    if (networkRef.current) networkRef.current.destroy();
+    const nodes = data.entities.map(e => ({ id: e.id, label: e.label, title: `${e.type}\n${Object.entries(e.properties).map(([k,v]) => `${k}: ${v}`).join('\n')}`, color: e.type === 'Subscriber' ? '#0ff' : '#3b82f6', shape: e.type === 'Subscriber' ? 'star' : 'dot', size: e.type === 'Subscriber' ? 30 : 20 + Math.min(20, (e.properties.voice_calls || 0)/10) }));
+    const edges = data.relationships.map(r => ({ from: r.source, to: r.target, label: r.type === 'SMS' ? '✉️' : (r.type === 'MIXED' ? '🔄' : '📞'), title: `${r.type} (${r.weight})`, width: Math.min(4, r.weight/12), color: { color: '#0ff' } }));
+    const options = { nodes: { font: { color: '#eef', size: 12 } }, edges: { arrows: { to: { enabled: true } }, font: { color: '#0ff' } }, physics: { stabilization: true, solver: 'forceAtlas2Based' }, interaction: { hover: true } };
+    const network = new vis.Network(containerRef.current, { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) }, options);
+    networkRef.current = network;
+    return () => network.destroy();
+  }, [data, view]);
+  if (loading) return <div className="flex justify-center py-12"><div className="spinner"/></div>;
+  if (!data || !data.entities.length) return <div className="text-center py-20 text-cyan-400/50">No relationships yet</div>;
+  return (<div><div className="flex justify-between mb-4"><div className="flex gap-3"><button className={`btn-secondary text-xs ${view==='table' ? 'bg-cyan-500/30 border-cyan-300' : ''}`} onClick={()=>setView('table')}>📋 TABLE</button><button className={`btn-secondary text-xs ${view==='graph' ? 'bg-cyan-500/30 border-cyan-300' : ''}`} onClick={()=>setView('graph')}>🕸️ GRAPH</button></div><span className="text-cyan-400/70 text-xs">{data.entities.length-1} CONTACTS</span></div>{view === 'table' ? (<div className="data-grid"><table className="w-full"><thead><tr><th>CONTACT</th><th>VOICE</th><th>SMS</th><th>DURATION</th><th>FIRST SEEN</th><th>TYPE</th></tr></thead><tbody>{data.relationships.map((rel,i)=>(<tr key={i}><td className="font-mono text-cyan-300">{rel.target}</td><td>{rel.properties.voice_calls}</td><td>{rel.properties.sms}</td><td>{rel.properties.total_duration}</td><td className="text-xs">{rel.properties.first_seen?.slice(0,10)}</td><td><span className="badge">{rel.type}</span></td></tr>))}</tbody></table></div>) : (<div className="bg-black/60 rounded-2xl border border-cyan-500/40" style={{ height: '550px' }} ref={containerRef}></div>)}</div>);
+}
+
+function BehaviorTab({ caseId }) {
+  const [data, setData] = useState(null); const [loading, setLoading] = useState(true); const spikeChartRef = useRef(null); let spikeChartInstance = useRef(null);
+  useEffect(() => { api.get(`/api/cases/${caseId}/analysis/behavior`).then(setData).finally(()=>setLoading(false)); }, [caseId]);
+  useEffect(() => {
+    if (!data?.spike_data || !spikeChartRef.current) return;
+    if (spikeChartInstance.current) spikeChartInstance.current.destroy();
+    spikeChartInstance.current = new Chart(spikeChartRef.current, { type: 'line', data: { labels: data.spike_data.map(d=>d.date.slice(5)), datasets: [{ label: 'Daily calls', data: data.spike_data.map(d=>d.count), borderColor: '#0ff', backgroundColor: 'transparent', borderWidth: 2, pointBackgroundColor: data.spike_data.map(d=>d.is_spike ? '#ff0055' : '#0ff'), pointRadius: 4 }, { label: 'Baseline', data: data.spike_data.map(d=>d.baseline), borderColor: '#ffaa44', borderWidth: 1.5, borderDash: [6,6], pointRadius: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#0ff' } } }, scales: { y: { grid: { color: '#2A3F5F' } }, x: { ticks: { color: '#9cf' } } } } });
+    return () => { if (spikeChartInstance.current) spikeChartInstance.current.destroy(); };
+  }, [data]);
+  if (loading) return <div className="flex justify-center py-12"><div className="spinner"/></div>;
+  if (!data || data.summary.total_anomalies===0) return <div className="text-center py-20 text-cyan-400/50">✅ NO ANOMALIES — PATTERN STABLE</div>;
+  const riskBadge = (risk) => risk === 'HIGH' ? <span className="bg-red-600/80 text-white px-2 rounded-full text-xs">🔴 HIGH</span> : (risk === 'MEDIUM' ? <span className="bg-orange-500/80 text-black px-2 rounded-full">🟡 MEDIUM</span> : <span className="bg-green-500/80 text-black px-2 rounded-full">🟢 LOW</span>);
+  return (<div className="space-y-8"><div className="grid grid-cols-4 gap-4"><div className="glass-cyber p-4 text-center"><div className="text-gray-400 text-xs">ANOMALIES</div><div className="text-3xl font-black text-red-400">{data.summary.total_anomalies}</div></div><div className="glass-cyber p-4 text-center"><div className="text-gray-400 text-xs">🌙 NIGHT ACTIVITY</div><div className="text-3xl font-black text-cyan-400">{data.summary.night_activity_count}</div></div><div className="glass-cyber p-4 text-center"><div className="text-gray-400 text-xs">📈 SPIKE EVENTS</div><div className="text-3xl font-black text-orange-400">{data.summary.spike_events}</div></div></div><div><h3 className="text-cyan-400 font-bold mb-3">⚠️ TOP SUSPICIOUS NUMBERS</h3><div className="data-grid"><table className="w-full"><thead><tr><th>NUMBER</th><th>SCORE</th><th>RISK</th><th>FLAGS</th></tr></thead><tbody>{data.top_suspicious.map(s=>(<tr key={s.number}><td className="font-mono text-cyan-300">{s.number}</td><td>{s.score}</td><td>{riskBadge(s.risk)}</td><td className="text-xs">{s.flags.join(', ')}</td></tr>))}</tbody></table></div></div><div><h3 className="text-cyan-400 font-bold mb-3">📊 SPIKE DETECTION</h3><div className="glass-cyber p-4" style={{height:'280px'}}><canvas ref={spikeChartRef}></canvas></div></div>{data.event_log.length>0 && (<div><h3 className="text-cyan-400 font-bold mb-3">📋 EVENT LOG</h3><div className="data-grid max-h-80 overflow-auto"><table className="w-full"><thead><tr><th>TIMESTAMP</th><th>NUMBER</th><th>TYPE</th><th>DESCRIPTION</th></tr></thead><tbody>{data.event_log.map((e,i)=>(<tr key={i}><td className="text-xs font-mono">{e.timestamp.slice(0,19).replace('T',' ')}</td><td className="font-mono">{e.number}</td><td><span className="badge bg-cyan-800">{e.type}</span></td><td className="text-sm">{e.description}</td></tr>))}</tbody></table></div></div>)}</div>);
+}
+
+function GeolocationTab() {
+  const [form, setForm] = useState({ mcc: '404', mnc: '92', lac: '1234', cellid: '56789' }); const [result, setResult] = useState(null); const [loading, setLoading] = useState(false); const mapRef = useRef(null); let mapInstance = useRef(null);
+  const lookup = async () => { setLoading(true); try { const data = await api.post('/api/geolocation/cell', form); setResult(data); if(data.lat && mapRef.current) { if(mapInstance.current) mapInstance.current.remove(); const map = L.map(mapRef.current).setView([data.lat, data.lon], 14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(map); L.marker([data.lat, data.lon]).addTo(map).bindPopup(`CELL: ${form.cellid}`).openPopup(); mapInstance.current = map; } } catch(e) { setResult({ error: e.message }); } finally { setLoading(false); } };
+  useEffect(() => { return () => { if(mapInstance.current) mapInstance.current.remove(); }; }, []);
+  return (<div><div className="glass-cyber p-6 rounded-2xl mb-6"><div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5"><input className="input-field" placeholder="MCC" value={form.mcc} onChange={e=>setForm({...form,mcc:e.target.value})}/><input className="input-field" placeholder="MNC" value={form.mnc} onChange={e=>setForm({...form,mnc:e.target.value})}/><input className="input-field" placeholder="LAC" value={form.lac} onChange={e=>setForm({...form,lac:e.target.value})}/><input className="input-field" placeholder="Cell ID" value={form.cellid} onChange={e=>setForm({...form,cellid:e.target.value})}/></div><button className="btn-primary" onClick={lookup} disabled={loading}>{loading ? 'TRIANGULATING...' : 'LOCATE TOWER'}</button></div>{result && !result.error && (<div className="glass-cyber p-4 rounded-xl"><p className="text-cyan-400">📍 COORD: {result.lat}, {result.lon}  |  source: {result.source}</p><div ref={mapRef} style={{height:'320px', marginTop:'20px', borderRadius:'18px'}}></div></div>)}{result?.error && <div className="text-red-400 p-4 rounded bg-red-500/10">ERROR: {result.error}</div>}</div>);
+}
+
+// ---------- CASE VIEW WITH SIDEBAR LAYOUT ----------
+function CaseView({ caseId, navigate }) {
+  const [caseInfo, setCaseInfo] = useState(null);
+  const [refreshFlag, setRefreshFlag] = useState(0);
+  const [activeModule, setActiveModule] = useState(0);
+  const modules = [
+    { name: 'RECORDS', icon: '📞', component: RecordsTab },
+    { name: 'TOP CONTACTS', icon: '📊', component: FrequencyTab },
+    { name: 'HOURLY PATTERN', icon: '⏱️', component: HourlyTab },
+    { name: 'RELATIONSHIP MAP', icon: '🔗', component: RelationshipTab },
+    { name: 'BEHAVIORAL ANOMALY', icon: '🧠', component: BehaviorTab },
+    { name: 'GEOLOCATION', icon: '📍', component: GeolocationTab }
+  ];
+  useEffect(() => { api.get(`/api/cases/${caseId}`).then(setCaseInfo).catch(console.error); }, [caseId, refreshFlag]);
+  const ActiveComp = modules[activeModule].component;
+  return (
+    <div className="max-w-full mx-auto px-5 py-7">
+      <div className="flex mb-5 gap-3 flex-wrap items-center">
+        <button className="btn-secondary text-sm" onClick={() => navigate('#/')}>← BACK TO DASHBOARD</button>
+        {caseInfo && <><span className="text-cyan-400 font-mono font-bold text-lg">[{caseInfo.case_number}]</span><span className="text-white text-2xl font-bold">{caseInfo.title}</span><span className="badge bg-cyan-900/80 ml-2">🔒 TARGET: {caseInfo.subscriber_number}</span></>}
+      </div>
+      <UploadPanel caseId={caseId} onUploadDone={() => setRefreshFlag(f => f+1)} />
+      <div className="flex flex-col md:flex-row gap-6 mt-4">
+        {/* SIDEBAR - new placement of options */}
+        <div className="md:w-72 w-full glass-cyber p-2 rounded-2xl h-fit">
+          <div className="text-xs text-cyan-500 font-mono px-4 py-2 tracking-wider">⚡ ANALYSIS MODULES</div>
+          {modules.map((mod, idx) => (
+            <div key={idx} className={`sidebar-item ${activeModule === idx ? 'active' : ''}`} onClick={() => setActiveModule(idx)}>
+              <span className="text-xl">{mod.icon}</span>
+              <span className="font-semibold tracking-wide">{mod.name}</span>
+            </div>
+          ))}
+        </div>
+        {/* MAIN CONTENT AREA */}
+        <div className="flex-1 glass-cyber p-6 rounded-2xl min-h-[70vh]">
+          <ActiveComp caseId={caseId} key={refreshFlag + activeModule} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const { hash, navigate } = useRoute();
+  const match = hash.match(/^#\/case\/(\d+)/);
+  return (<div className="min-h-screen"><TopNav navigate={navigate}/><main>{match ? <CaseView caseId={parseInt(match[1])} navigate={navigate}/> : <HomePage navigate={navigate}/>}</main></div>);
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
